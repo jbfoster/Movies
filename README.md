@@ -1,0 +1,2 @@
+# Movies
+This app displays poster images for 20 movies. The settings menu allows you to sort the movies either by most popular or highest rated. Clicking on an movie image takes you to a detail page that displays more information about that movie. This app requires an API key from the Movie Database available at http://themoviedb.com. Once you obtain a key, create a api_keys.xml resource file and store the API as a string with key "movie_api_key"
