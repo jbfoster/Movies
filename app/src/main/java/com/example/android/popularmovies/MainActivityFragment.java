@@ -3,6 +3,8 @@ package com.example.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -112,13 +114,28 @@ public class MainActivityFragment extends Fragment {
     private void getMovies() {
         // FetchMoviesTask gets movie data from The Movie Database
         FetchMoviesTask moviesTask = new FetchMoviesTask();
-        moviesTask.execute();
+        if (isNetworkAvailable()) { // only download movies if network is available
+            moviesTask.execute();
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         getMovies();
+    }
+
+    // isNetworkAvailable() checks for network connectivity
+    public boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager)
+                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        // if no network is available networkInfo will be null
+        // otherwise check if we are connected
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        }
+        return false;
     }
 
     // FetchMoviesTask class contains methods for getting movie data from The Movie Database
@@ -128,7 +145,6 @@ public class MainActivityFragment extends Fragment {
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
-         * <p/>
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
@@ -167,6 +183,7 @@ public class MainActivityFragment extends Fragment {
 
             return resultStrs;
         }
+
 
         // doInBackground executes the API call in a background thread
         @Override
