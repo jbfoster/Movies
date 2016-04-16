@@ -31,10 +31,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
-/**
- * Fragment for getting movie data.
- */
+
+// Fragment for getting movie data.
+
 public class MainActivityFragment extends Fragment {
 
     // create a 2-D array to hold movie information downloaded from Movie Database
@@ -43,7 +44,48 @@ public class MainActivityFragment extends Fragment {
     // create a gridview as a global variable in order to access movie data
     public GridView gridView;
 
+    // create a flag that is set when there is saved movie data from savedInstance
+    // if this flag is true, onCreateView can display images immediately
+    // if this flag is false, images are displayed after background fetchmovies task completes
+    public boolean savedData = false;
+
     public MainActivityFragment() {
+    }
+
+    // Load movie data from savedInstanceState if it exists
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+
+            ArrayList<MyObject> list;
+            list = savedInstanceState.getParcelableArrayList("key");
+
+            movieInfo = new String[20][5];
+
+            for (int i = 0; i < 20; i++) {
+                movieInfo[i][0] = list.get(i).getTitle();
+                movieInfo[i][1] = list.get(i).getPoster();
+                movieInfo[i][2] = list.get(i).getSynopsis();
+                movieInfo[i][3] = list.get(i).getRating();
+                movieInfo[i][4] = list.get(i).getRelease();
+            }
+            savedData = true;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!savedData) { // download movie data if no savedinstancestate
+            getMovies();
+        }
+
+        if (savedData) { // reset savedData flag and display movies using stored data
+            savedData = false;
+            displayImages();
+        }
     }
 
 
@@ -54,9 +96,6 @@ public class MainActivityFragment extends Fragment {
 
         // Create a gridview for grid of movie posters
         gridView = (GridView) rootView.findViewById(R.id.gridview);
-
-        // Set custom adapter defined in ImageAdapter class
-        gridView.setAdapter(new ImageAdapter(getActivity()));
 
         // When a movie poster is clicked, start DetailActivity intent
         // passing in the array of movie data for the selected movie
@@ -70,6 +109,22 @@ public class MainActivityFragment extends Fragment {
 
         return rootView;
     }
+
+    // Saved moviedata as Bundle so data doesn't have to be downloaded again
+    // after device rotation
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (movieInfo != null) {
+            ArrayList<MyObject> list = new ArrayList<MyObject>();
+            for (int i = 0; i < 20; i++) { // cycle through list of 20 movies on screen
+                list.add(new MyObject(movieInfo[i][0], movieInfo[i][1],
+                        movieInfo[i][2], movieInfo[i][3], movieInfo[i][4]));
+            }
+            outState.putParcelableArrayList("key", list);
+            super.onSaveInstanceState(outState);
+        }
+    }
+
 
     // ImageAdapter class is custom adapater for gridview
     public class ImageAdapter extends BaseAdapter {
@@ -105,9 +160,12 @@ public class MainActivityFragment extends Fragment {
                 imageView = (ImageView) convertView;
             }
 
+            String url = "http://image.tmdb.org/t/p/w185/";
+            url = url + movieInfo[position][1];
+            Picasso.with(getActivity()).load(url).into(imageView);
+
             return imageView;
         }
-
     }
 
     // getMovies method gets movie data by executing FetchMoviesTask
@@ -117,12 +175,6 @@ public class MainActivityFragment extends Fragment {
         if (isNetworkAvailable()) { // only download movies if network is available
             moviesTask.execute();
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        getMovies();
     }
 
     // isNetworkAvailable() checks for network connectivity
@@ -137,6 +189,12 @@ public class MainActivityFragment extends Fragment {
         }
         return false;
     }
+
+    // displayImages method displays poster images using picasso by setting imageadapter
+    public void displayImages() {
+        gridView.setAdapter(new ImageAdapter(getActivity()));
+    }
+
 
     // FetchMoviesTask class contains methods for getting movie data from The Movie Database
     public class FetchMoviesTask extends AsyncTask<String, Void, String[]> {
@@ -282,17 +340,8 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null) {
-                for (int i = 0; i < gridView.getCount(); i++) {
-                    if (gridView.getChildAt(i) instanceof ImageView) {
-                        ImageView child = (ImageView) gridView.getChildAt(i);
-                        String url = "http://image.tmdb.org/t/p/w185/";
-                        url = url + movieInfo[i][1];
-                        Picasso.with(getActivity()).load(url).into(child);
-                    }
-                }
+                displayImages();
             }
-
-
         }
     }
 
