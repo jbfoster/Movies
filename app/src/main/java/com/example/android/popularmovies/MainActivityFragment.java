@@ -62,7 +62,7 @@ public class MainActivityFragment extends Fragment {
             ArrayList<MyObject> list;
             list = savedInstanceState.getParcelableArrayList("key");
 
-            movieInfo = new String[20][5];
+            movieInfo = new String[20][6];
 
             for (int i = 0; i < 20; i++) {
                 movieInfo[i][0] = list.get(i).getTitle();

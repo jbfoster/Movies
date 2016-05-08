@@ -32,6 +32,14 @@ import com.squareup.picasso.Picasso;
 // the specific movie that was selected
 public class DetailActivity extends AppCompatActivity {
 
+    // getReviews method is called when Read Reviews button is clicked
+    // ReviewsActivity Intent is started to download and display reviews
+    public void getReviews(View view) {
+        Intent detailIntent = new Intent(this,
+                ReviewsActivity.class).putExtra("data", "test");
+        startActivity(detailIntent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
