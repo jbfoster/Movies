@@ -70,6 +70,7 @@ public class MainActivityFragment extends Fragment {
                 movieInfo[i][2] = list.get(i).getSynopsis();
                 movieInfo[i][3] = list.get(i).getRating();
                 movieInfo[i][4] = list.get(i).getRelease();
+                movieInfo[i][5] = list.get(i).getId();
             }
             savedData = true;
         }
@@ -118,7 +119,7 @@ public class MainActivityFragment extends Fragment {
             ArrayList<MyObject> list = new ArrayList<MyObject>();
             for (int i = 0; i < 20; i++) { // cycle through list of 20 movies on screen
                 list.add(new MyObject(movieInfo[i][0], movieInfo[i][1],
-                        movieInfo[i][2], movieInfo[i][3], movieInfo[i][4]));
+                        movieInfo[i][2], movieInfo[i][3], movieInfo[i][4], movieInfo[i][5]));
             }
             outState.putParcelableArrayList("key", list);
             super.onSaveInstanceState(outState);
@@ -216,12 +217,13 @@ public class MainActivityFragment extends Fragment {
             final String MDB_SYNOPSIS = "overview";
             final String MDB_RATING = "vote_average";
             final String MDB_RELEASE = "release_date";
+            final String MDB_ID = "id";
 
             JSONObject moviesJson = new JSONObject(moviesJsonStr);
             JSONArray moviesArray = moviesJson.getJSONArray(MDB_RESULTS);
 
             // Create array to hold relevant data for each movie
-            movieInfo = new String[moviesArray.length()][5];
+            movieInfo = new String[moviesArray.length()][6];
 
             String[] resultStrs = new String[moviesArray.length()];
             for (int i = 0; i < moviesArray.length(); i++) {
@@ -235,6 +237,7 @@ public class MainActivityFragment extends Fragment {
                 movieInfo[i][2] = movieData.getString(MDB_SYNOPSIS);
                 movieInfo[i][3] = movieData.getString(MDB_RATING);
                 movieInfo[i][4] = movieData.getString(MDB_RELEASE);
+                movieInfo[i][5] = movieData.getString(MDB_ID);
 
                 resultStrs[i] = movieInfo[i][1];
             }

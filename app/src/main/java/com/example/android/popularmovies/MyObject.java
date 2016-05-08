@@ -14,13 +14,16 @@ public class MyObject implements Parcelable {
     String synopsis;
     String rating;
     String release;
+    String id;
 
-    public MyObject(String title, String poster, String overview, String vote, String release) {
+    public MyObject(String title, String poster, String overview,
+                    String vote, String release, String id) {
         this.title = title;
         this.poster = poster;
         this.synopsis = overview;
         this.rating = vote;
         this.release = release;
+        this.id = id;
     }
 
     private MyObject(Parcel in) {
@@ -29,6 +32,7 @@ public class MyObject implements Parcelable {
         synopsis = in.readString();
         rating = in.readString();
         release = in.readString();
+        id = in.readString();
     }
 
     public int describeContents() {
@@ -55,12 +59,17 @@ public class MyObject implements Parcelable {
         return this.release;
     }
 
+    public String getId() {
+        return this.id;
+    }
+
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(title);
         out.writeString(poster);
         out.writeString(synopsis);
         out.writeString(rating);
         out.writeString(release);
+        out.writeString(id);
     }
 
     public static final Parcelable.Creator<MyObject> CREATOR = new Parcelable.Creator<MyObject>() {
