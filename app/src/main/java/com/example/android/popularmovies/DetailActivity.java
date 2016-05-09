@@ -32,18 +32,24 @@ import com.squareup.picasso.Picasso;
 // the specific movie that was selected
 public class DetailActivity extends AppCompatActivity {
 
+    String[] movieStr; // global variable to store movie data to pass to Review Activity
+
     // getReviews method is called when Read Reviews button is clicked
     // ReviewsActivity Intent is started to download and display reviews
     public void getReviews(View view) {
-        Intent detailIntent = new Intent(this,
-                ReviewsActivity.class).putExtra("data", "test");
-        startActivity(detailIntent);
+        Intent reviewsIntent = new Intent(this,
+                ReviewsActivity.class).putExtra("data", movieStr);
+        startActivity(reviewsIntent);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        Intent intent = this.getIntent();
+        if (intent != null && (intent.getExtras() != null)) {
+            movieStr = intent.getStringArrayExtra("data");
+        }
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new DetailFragment())
