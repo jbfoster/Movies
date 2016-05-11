@@ -5,6 +5,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/detail_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -79,6 +80,13 @@
             android:layout_height="wrap_content"
             android:text="@string/review_text"
             android:onClick="getReviews" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/line_separator_height"
+            android:layout_margin="@dimen/line_separator_margin"
+            android:background="?android:attr/listDivider" />
+
 
     </LinearLayout>
 </ScrollView>
