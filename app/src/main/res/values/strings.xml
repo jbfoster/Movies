@@ -12,5 +12,7 @@
     <string name="title_activity_detail">DetailActivity</string>
 
     <string name="review_text">Read Reviews</string>
+    <string name="trailers_text">Trailers:</string>
+    <string name="trailer_text">Trailer</string>
 
 </resources>

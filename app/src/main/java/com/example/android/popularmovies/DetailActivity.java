@@ -18,6 +18,7 @@ package com.example.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -26,7 +27,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -269,17 +270,53 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(String[] result) {
                 if (result != null) {
-                    LinearLayout linearLayout = (LinearLayout)
+                    // rootLinearLayout is base vertical linear layout
+                    // each trailer will be added as a new horizontal linear layout
+                    LinearLayout rootLinearLayout = (LinearLayout)
                             rootView.findViewById(R.id.detail_linear_layout);
 
-                    // cycle through each review and add text views for author and review
+                    // add linear layout and views for each available trailer
+                    int counter = 1; // tracks the number of trailers
                     for (String trailer : trailersInfo) {
-                        String author = "Trailer " + trailer + ":";
-                        TextView authorText = new TextView(getActivity());
-                        authorText.setText(author);
-                        authorText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-                        authorText.setPadding(0, 0, 0, 10);
-                        linearLayout.addView(authorText);
+                        LinearLayout llTrailer = new LinearLayout(getActivity());
+                        llTrailer.setLayoutParams(new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT));
+                        llTrailer.setOrientation(LinearLayout.HORIZONTAL);
+                        rootLinearLayout.addView(llTrailer);
+
+                        // add ImageView for play image
+                        ImageView playImageView = new ImageView(getActivity());
+                        playImageView.setImageResource(R.drawable.button_play);
+                        int width = 120;
+                        int height = 120;
+                        LinearLayout.LayoutParams parms =
+                                new LinearLayout.LayoutParams(width, height);
+                        parms.setMargins(16, 16, 16, 16);
+                        playImageView.setLayoutParams(parms);
+                        playImageView.setAdjustViewBounds(true);
+                        llTrailer.addView(playImageView);
+
+                        // add TextView for trailer text
+                        TextView trailerText = new TextView(getActivity());
+                        trailerText.setLayoutParams(new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT));
+                        String txt = getResources().getString(R.string.trailer_text);
+                        txt = txt + " " + Integer.toString(counter);
+                        trailerText.setText(txt);
+                        //trailerText.setPadding(16, 0, 0, 0);
+                        trailerText.setGravity(Gravity.CENTER_VERTICAL);
+                        llTrailer.addView(trailerText);
+
+                        View lineView = new View(getActivity());
+
+                        lineView.setLayoutParams(new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, 2));
+                        lineView.setBackgroundColor(Color.parseColor("#333333"));
+                        rootLinearLayout.addView(lineView);
+
+                        counter++;
                     }
                 }
             }

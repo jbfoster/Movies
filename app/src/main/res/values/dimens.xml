@@ -5,4 +5,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="line_separator_height">2px</dimen>
     <dimen name="line_separator_margin">5dp</dimen>
+    <dimen name="playImageView_height">80dp</dimen>
+    <dimen name="playImageView_width">80dp</dimen>
 </resources>
