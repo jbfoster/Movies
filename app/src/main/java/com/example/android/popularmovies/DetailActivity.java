@@ -179,12 +179,6 @@ public class DetailActivity extends AppCompatActivity {
             protected String[] doInBackground(String... params) {
                 String movieId = movieStr[5];
 
-//                Intent intent = getActivity().getIntent();
-//                if (intent != null && (intent.getExtras() != null)) {
-//                    String[] movieStr = intent.getStringArrayExtra("data");
-//                    movieId = movieStr[5];
-//                }
-
                 // These two need to be declared outside the try/catch
                 // so that they can be closed in the finally block.
                 HttpURLConnection urlConnection = null;
@@ -269,6 +263,8 @@ public class DetailActivity extends AppCompatActivity {
             // Once background thread is completed, add text views for each review
             @Override
             protected void onPostExecute(String[] result) {
+                int counter = 1; // tracks the number of trailers
+
                 if (result != null) {
                     // rootLinearLayout is base vertical linear layout
                     // each trailer will be added as a new horizontal linear layout
@@ -276,7 +272,6 @@ public class DetailActivity extends AppCompatActivity {
                             rootView.findViewById(R.id.detail_linear_layout);
 
                     // add linear layout and views for each available trailer
-                    int counter = 1; // tracks the number of trailers
                     for (String trailer : trailersInfo) {
                         LinearLayout llTrailer = new LinearLayout(getActivity());
                         llTrailer.setLayoutParams(new ViewGroup.LayoutParams(
@@ -295,6 +290,19 @@ public class DetailActivity extends AppCompatActivity {
                         parms.setMargins(16, 16, 16, 16);
                         playImageView.setLayoutParams(parms);
                         playImageView.setAdjustViewBounds(true);
+                        final String link = trailersInfo[counter - 1]; // youtube link for trailer
+
+                        // set ClickListener to start youtube intent when trailer is clicked
+                        playImageView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String video_path = "https://www.youtube.com/watch?v=";
+                                video_path = video_path + link;
+                                Intent intent =
+                                        new Intent(Intent.ACTION_VIEW, Uri.parse(video_path));
+                                startActivity(intent);
+                            }
+                        });
                         llTrailer.addView(playImageView);
 
                         // add TextView for trailer text
@@ -305,12 +313,11 @@ public class DetailActivity extends AppCompatActivity {
                         String txt = getResources().getString(R.string.trailer_text);
                         txt = txt + " " + Integer.toString(counter);
                         trailerText.setText(txt);
-                        //trailerText.setPadding(16, 0, 0, 0);
                         trailerText.setGravity(Gravity.CENTER_VERTICAL);
                         llTrailer.addView(trailerText);
 
+                        // Add separation line
                         View lineView = new View(getActivity());
-
                         lineView.setLayoutParams(new LinearLayout.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT, 2));
                         lineView.setBackgroundColor(Color.parseColor("#333333"));
