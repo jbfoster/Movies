@@ -6,6 +6,7 @@ import android.os.Parcelable;
 
 // MyObject class implements Parcelable in order to use onSaveInstanceState to restore app state
 // and movie data after device rotation without downloading data again
+// The data stored is for the twenty movies in the main screen
 public class MyObject implements Parcelable {
 
     // MyObject contains a string for each movie data item
