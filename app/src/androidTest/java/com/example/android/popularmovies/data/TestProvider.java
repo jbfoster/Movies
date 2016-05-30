@@ -5,13 +5,16 @@ package com.example.android.popularmovies.data;
  */
 
 import android.content.ComponentName;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.example.android.popularmovies.data.MovieContract.MovieEntry;
 import com.example.android.popularmovies.data.MovieContract.ReviewEntry;
@@ -271,60 +274,59 @@ public class TestProvider extends AndroidTestCase {
     }
 
     /*
-        This test uses the provider to insert and then update the data. Uncomment this test to
-        see if your update location is functioning correctly.
+        This test uses the provider to insert and then update the data.
      */
-//    public void testUpdateLocation() {
-//        // Create a new map of values, where column names are the keys
-//        ContentValues values = TestUtilities.createNorthPoleLocationValues();
-//
-//        Uri locationUri = mContext.getContentResolver().
-//                insert(LocationEntry.CONTENT_URI, values);
-//        long locationRowId = ContentUris.parseId(locationUri);
-//
-//        // Verify we got a row back.
-//        assertTrue(locationRowId != -1);
-//        Log.d(LOG_TAG, "New row id: " + locationRowId);
-//
-//        ContentValues updatedValues = new ContentValues(values);
-//        updatedValues.put(LocationEntry._ID, locationRowId);
-//        updatedValues.put(LocationEntry.COLUMN_CITY_NAME, "Santa's Village");
-//
-//        // Create a cursor with observer to make sure that the content provider is notifying
-//        // the observers as expected
-//        Cursor locationCursor = mContext.getContentResolver().query(LocationEntry.CONTENT_URI, null, null, null, null);
-//
-//        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
-//        locationCursor.registerContentObserver(tco);
-//
-//        int count = mContext.getContentResolver().update(
-//                LocationEntry.CONTENT_URI, updatedValues, LocationEntry._ID + "= ?",
-//                new String[] { Long.toString(locationRowId)});
-//        assertEquals(count, 1);
-//
-//        // Test to make sure our observer is called.  If not, we throw an assertion.
-//        //
-//        // Students: If your code is failing here, it means that your content provider
-//        // isn't calling getContext().getContentResolver().notifyChange(uri, null);
-//        tco.waitForNotificationOrFail();
-//
-//        locationCursor.unregisterContentObserver(tco);
-//        locationCursor.close();
-//
-//        // A cursor is your primary interface to the query results.
-//        Cursor cursor = mContext.getContentResolver().query(
-//                LocationEntry.CONTENT_URI,
-//                null,   // projection
-//                LocationEntry._ID + " = " + locationRowId,
-//                null,   // Values for the "where" clause
-//                null    // sort order
-//        );
-//
-//        TestUtilities.validateCursor("testUpdateLocation.  Error validating location entry update.",
-//                cursor, updatedValues);
-//
-//        cursor.close();
-//    }
+    public void testUpdateMovie() {
+        // Create a new map of values, where column names are the keys
+        ContentValues values = TestUtilities.createToyStoryValues();
+
+        Uri movieUri = mContext.getContentResolver().
+                insert(MovieEntry.CONTENT_URI, values);
+        long movieRowId = ContentUris.parseId(movieUri);
+
+        // Verify we got a row back.
+        assertTrue(movieRowId != -1);
+        Log.d(LOG_TAG, "New row id: " + movieRowId);
+
+        ContentValues updatedValues = new ContentValues(values);
+        updatedValues.put(MovieEntry._ID, movieRowId);
+        updatedValues.put(MovieEntry.COLUMN_TITLE, "Home Alone");
+
+        // Create a cursor with observer to make sure that the content provider is notifying
+        // the observers as expected
+        Cursor locationCursor = mContext.getContentResolver().query(MovieEntry.CONTENT_URI, null, null, null, null);
+
+        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
+        locationCursor.registerContentObserver(tco);
+
+        int count = mContext.getContentResolver().update(
+                MovieEntry.CONTENT_URI, updatedValues, MovieEntry._ID + "= ?",
+                new String[]{Long.toString(movieRowId)});
+        assertEquals(count, 1);
+
+        // Test to make sure our observer is called.  If not, we throw an assertion.
+        //
+        // Students: If your code is failing here, it means that your content provider
+        // isn't calling getContext().getContentResolver().notifyChange(uri, null);
+        tco.waitForNotificationOrFail();
+
+        locationCursor.unregisterContentObserver(tco);
+        locationCursor.close();
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                null,   // projection
+                MovieEntry._ID + " = " + movieRowId,
+                null,   // Values for the "where" clause
+                null    // sort order
+        );
+
+        TestUtilities.validateCursor("testUpdateLocation.  Error validating location entry update.",
+                cursor, updatedValues);
+
+        cursor.close();
+    }
 
 
     // Make sure we can still delete after adding/updating stuff
