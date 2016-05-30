@@ -23,8 +23,6 @@ public class TestProvider extends AndroidTestCase {
        deleted, so it cannot be used until the Query and Delete functions have been written
        in the ContentProvider.
 
-       Students: Replace the calls to deleteAllRecordsFromDB with this one after you have written
-       the delete functionality in the ContentProvider.
      */
     public void deleteAllRecordsFromProvider() {
         mContext.getContentResolver().delete(
@@ -90,12 +88,9 @@ public class TestProvider extends AndroidTestCase {
         db.close();
     }
 
-    /*
-        Student: Refactor this function to use the deleteAllRecordsFromProvider functionality once
-        you have implemented delete functionality there.
-     */
+
     public void deleteAllRecords() {
-        deleteAllRecordsFromDB();
+        deleteAllRecordsFromProvider();
     }
 
     // Since we want each test to start with a clean slate, run deleteAllRecords
@@ -108,7 +103,6 @@ public class TestProvider extends AndroidTestCase {
 
     /*
         This test checks to make sure that the content provider is registered correctly.
-        Students: Uncomment this test to make sure you've correctly registered the WeatherProvider.
      */
 //    public void testProviderRegistry() {
 //        PackageManager pm = mContext.getPackageManager();
@@ -136,38 +130,41 @@ public class TestProvider extends AndroidTestCase {
     /*
             This test doesn't touch the database.  It verifies that the ContentProvider returns
             the correct type for each type of URI that it can handle.
-            Students: Uncomment this test to verify that your implementation of GetType is
-            functioning correctly.
          */
-//    public void testGetType() {
-//        // content://com.example.android.sunshine.app/weather/
-//        String type = mContext.getContentResolver().getType(WeatherEntry.CONTENT_URI);
-//        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
-//        assertEquals("Error: the WeatherEntry CONTENT_URI should return WeatherEntry.CONTENT_TYPE",
-//                WeatherEntry.CONTENT_TYPE, type);
-//
-//        String testLocation = "94074";
-//        // content://com.example.android.sunshine.app/weather/94074
-//        type = mContext.getContentResolver().getType(
-//                WeatherEntry.buildWeatherLocation(testLocation));
-//        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
-//        assertEquals("Error: the WeatherEntry CONTENT_URI with location should return WeatherEntry.CONTENT_TYPE",
-//                WeatherEntry.CONTENT_TYPE, type);
-//
-//        long testDate = 1419120000L; // December 21st, 2014
-//        // content://com.example.android.sunshine.app/weather/94074/20140612
-//        type = mContext.getContentResolver().getType(
-//                WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
-//        // vnd.android.cursor.item/com.example.android.sunshine.app/weather/1419120000
-//        assertEquals("Error: the WeatherEntry CONTENT_URI with location and date should return WeatherEntry.CONTENT_ITEM_TYPE",
-//                WeatherEntry.CONTENT_ITEM_TYPE, type);
-//
-//        // content://com.example.android.sunshine.app/location/
-//        type = mContext.getContentResolver().getType(LocationEntry.CONTENT_URI);
-//        // vnd.android.cursor.dir/com.example.android.sunshine.app/location
-//        assertEquals("Error: the LocationEntry CONTENT_URI should return LocationEntry.CONTENT_TYPE",
-//                LocationEntry.CONTENT_TYPE, type);
-//    }
+    public void testGetType() {
+        // content://com.example.android.popularmovies.app/movie/
+        String type = mContext.getContentResolver().getType(MovieEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.popularmovies.app/movie
+        assertEquals("Error: the MovieEntry CONTENT_URI should return WeatherEntry.CONTENT_TYPE",
+                MovieEntry.CONTENT_TYPE, type);
+
+        // content://com.example.android.popularmovies.app/review/
+        type = mContext.getContentResolver().getType(ReviewEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.popularmovies.app/review
+        assertEquals("Error: the ReviewEntry CONTENT_URI should return ReviewEntry.CONTENT_TYPE",
+                ReviewEntry.CONTENT_TYPE, type);
+
+        // content://com.example.android.popularmovies.app/trailer/
+        type = mContext.getContentResolver().getType(TrailerEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.popularmovies.app/trailer
+        assertEquals("Error: the TrailerEntry CONTENT_URI should return TrailerEntry.CONTENT_TYPE",
+                TrailerEntry.CONTENT_TYPE, type);
+
+        String testMovieTitle = "Toy Story";
+        // content://com.example.android.popularmovies.app/review/Toy_Story
+        type = mContext.getContentResolver().getType(
+                ReviewEntry.buildReviewMovie(testMovieTitle));
+        // vnd.android.cursor.dir/com.example.android.popularmovies.app/movie
+        assertEquals("Error: the ReviewEntry CONTENT_URI with movie should return ReviewEntry.CONTENT_TYPE",
+                ReviewEntry.CONTENT_TYPE, type);
+
+        // content://com.example.android.popularmovies.app/trailer/Toy_Story
+        type = mContext.getContentResolver().getType(
+                TrailerEntry.buildTrailerMovie(testMovieTitle));
+        // vnd.android.cursor.item/com.example.android.popularmovies.app/trailer/Toy_Story
+        assertEquals("Error: the TrailerEntry CONTENT_URI with movie and date should return TrailerEntry.CONTENT_ITEM_TYPE",
+                TrailerEntry.CONTENT_TYPE, type);
+    }
 
 
     /*

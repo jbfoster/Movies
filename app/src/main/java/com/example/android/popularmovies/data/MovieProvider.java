@@ -22,8 +22,8 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE = 1;
     static final int REVIEW = 2;
     static final int TRAILER = 3;
-    static final int MOVIE_WITH_REVIEW = 4;
-    static final int MOVIE_WITH_TRAILER = 5;
+    static final int REVIEW_WITH_MOVIE = 4;
+    static final int TRAILER_WITH_MOVIE = 5;
 
     private static final SQLiteQueryBuilder sReviewByMovieQueryBuilder;
     private static final SQLiteQueryBuilder sTrailerByMovieQueryBuilder;
@@ -69,8 +69,8 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIE);
         matcher.addURI(authority, MovieContract.PATH_REVIEW, REVIEW);
         matcher.addURI(authority, MovieContract.PATH_TRAILER, TRAILER);
-        matcher.addURI(authority, MovieContract.PATH_REVIEW + "/*", MOVIE_WITH_REVIEW);
-        matcher.addURI(authority, MovieContract.PATH_TRAILER + "/*", MOVIE_WITH_TRAILER);
+        matcher.addURI(authority, MovieContract.PATH_REVIEW + "/*", REVIEW_WITH_MOVIE);
+        matcher.addURI(authority, MovieContract.PATH_TRAILER + "/*", TRAILER_WITH_MOVIE);
 
 //        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
         return matcher;
@@ -96,10 +96,10 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             case TRAILER:
                 return MovieContract.TrailerEntry.CONTENT_TYPE;
-            case MOVIE_WITH_REVIEW:
-                return MovieContract.MovieEntry.CONTENT_TYPE;
-            case MOVIE_WITH_TRAILER:
-                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case REVIEW_WITH_MOVIE:
+                return MovieContract.ReviewEntry.CONTENT_TYPE;
+            case TRAILER_WITH_MOVIE:
+                return MovieContract.TrailerEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -114,7 +114,7 @@ public class MovieProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
 
             // "review/*"
-            case MOVIE_WITH_REVIEW: {
+            case REVIEW_WITH_MOVIE: {
                 retCursor = sReviewByMovieQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                         projection,
                         selection,
@@ -126,7 +126,7 @@ public class MovieProvider extends ContentProvider {
             }
 
             // "trailer/*"
-            case MOVIE_WITH_TRAILER: {
+            case TRAILER_WITH_MOVIE: {
                 retCursor = sTrailerByMovieQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                         projection,
                         selection,
