@@ -1,12 +1,9 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.data;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
-
-import com.example.android.popularmovies.data.MovieContract;
-import com.example.android.popularmovies.data.MovieDbHelper;
 
 /**
  * Created by User on 5/14/2016.

@@ -47,6 +47,10 @@
             android:parentActivityName=".DetailActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
+        <provider
+            android:authorities="com.example.android.popularmovies.app"
+            android:name=".data.MovieProvider" />
+
     </application>
 
 </manifest>

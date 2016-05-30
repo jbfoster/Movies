@@ -1,10 +1,8 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.data;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
-
-import com.example.android.popularmovies.data.MovieContract;
 
 import java.util.Map;
 import java.util.Set;

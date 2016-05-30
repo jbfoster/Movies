@@ -21,7 +21,7 @@ public class MovieContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Possible paths (appended to base content URI for possible URI's)
-    public static final String PATH_MOVIE = "weather";
+    public static final String PATH_MOVIE = "movie";
     public static final String PATH_REVIEW = "review";
     public static final String PATH_TRAILER = "trailer";
 
@@ -74,52 +74,21 @@ public class MovieContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        /*
-            Student: This is the buildWeatherLocation function you filled in.
-         */
-        public static Uri buildWeatherLocation(String locationSetting) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
+        public static Uri buildReviewMovie(String movieTitle) {
+            return CONTENT_URI.buildUpon().appendPath(movieTitle).build();
         }
-
-//        public static Uri buildWeatherLocationWithStartDate(
-//                String locationSetting, long startDate) {
-//            long normalizedDate = normalizeDate(startDate);
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-//                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-//        }
-//
-//        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-//                    .appendPath(Long.toString(normalizeDate(date))).build();
-//        }
-//
-//        public static String getLocationSettingFromUri(Uri uri) {
-//            return uri.getPathSegments().get(1);
-//        }
-//
-//        public static long getDateFromUri(Uri uri) {
-//            return Long.parseLong(uri.getPathSegments().get(2));
-//        }
-//
-//        public static long getStartDateFromUri(Uri uri) {
-//            String dateString = uri.getQueryParameter(COLUMN_DATE);
-//            if (null != dateString && dateString.length() > 0)
-//                return Long.parseLong(dateString);
-//            else
-//                return 0;
-//        }
     }
 
     /* Inner class that defines the table contents of the trailer table */
     public static final class TrailerEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
         public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
 
         public static final String TABLE_NAME = "trailer";
 
@@ -128,43 +97,12 @@ public class MovieContract {
         // Columns for trailer link
         public static final String COLUMN_TRAILER_LINK = "trailer";
 
-        public static Uri buildReviewUri(long id) {
+        public static Uri buildTrailerUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        /*
-            Student: This is the buildWeatherLocation function you filled in.
-         */
-        public static Uri buildWeatherLocation(String locationSetting) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
+        public static Uri buildTrailerMovie(String movieTitle) {
+            return CONTENT_URI.buildUpon().appendPath(movieTitle).build();
         }
-
-//        public static Uri buildWeatherLocationWithStartDate(
-//                String locationSetting, long startDate) {
-//            long normalizedDate = normalizeDate(startDate);
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-//                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-//        }
-//
-//        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-//                    .appendPath(Long.toString(normalizeDate(date))).build();
-//        }
-//
-//        public static String getLocationSettingFromUri(Uri uri) {
-//            return uri.getPathSegments().get(1);
-//        }
-//
-//        public static long getDateFromUri(Uri uri) {
-//            return Long.parseLong(uri.getPathSegments().get(2));
-//        }
-//
-//        public static long getStartDateFromUri(Uri uri) {
-//            String dateString = uri.getQueryParameter(COLUMN_DATE);
-//            if (null != dateString && dateString.length() > 0)
-//                return Long.parseLong(dateString);
-//            else
-//                return 0;
-//        }
     }
 }

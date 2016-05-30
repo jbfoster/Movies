@@ -47,7 +47,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + "))";
 
-        // Create a table to hold reviews
+        // Create a table to hold trailers
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 TrailerEntry._ID + " INTEGER PRIMARY KEY," +
 
