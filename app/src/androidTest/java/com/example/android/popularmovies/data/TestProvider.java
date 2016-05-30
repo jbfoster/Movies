@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.test.AndroidTestCase;
 
 import com.example.android.popularmovies.data.MovieContract.MovieEntry;
@@ -201,33 +202,73 @@ public class TestProvider extends AndroidTestCase {
         This test uses the database directly to insert and then uses the ContentProvider to
         read out the data..
      */
-//    public void testBasicLocationQueries() {
-//        // insert our test records into the database
-//        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
-//        SQLiteDatabase db = dbHelper.getWritableDatabase();
-//
-//        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
-//        long locationRowId = TestUtilities.insertNorthPoleLocationValues(mContext);
-//
-//        // Test the basic content provider query
-//        Cursor locationCursor = mContext.getContentResolver().query(
-//                LocationEntry.CONTENT_URI,
-//                null,
-//                null,
-//                null,
-//                null
-//        );
-//
-//        // Make sure we get the correct cursor out of the database
-//        TestUtilities.validateCursor("testBasicLocationQueries, location query", locationCursor, testValues);
-//
-//        // Has the NotificationUri been set correctly? --- we can only test this easily against API
-//        // level 19 or greater because getNotificationUri was added in API level 19.
-//        if ( Build.VERSION.SDK_INT >= 19 ) {
-//            assertEquals("Error: Location Query did not properly set NotificationUri",
-//                    locationCursor.getNotificationUri(), LocationEntry.CONTENT_URI);
-//        }
-//    }
+    public void testBasicReviewQueries() {
+        // insert our test records into the database
+        MovieDbHelper dbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues movieValues = TestUtilities.createToyStoryValues();
+        long movieRowID = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, movieValues);
+
+        ContentValues reviewValues = TestUtilities.createReviewValues(movieRowID);
+        long reviewRowID = db.insert(ReviewEntry.TABLE_NAME, null, reviewValues);
+        assertTrue("Unable to insert ReviewEntry into database", reviewRowID != -1);
+
+        db.close();
+
+        // Test the basic content provider query
+        Cursor reviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Make sure we get the correct cursor out of the database
+        TestUtilities.validateCursor("testBasicReviewQueries, review query", reviewCursor, reviewValues);
+
+        // Has the NotificationUri been set correctly? --- we can only test this easily against API
+        // level 19 or greater because getNotificationUri was added in API level 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertEquals("Error: Location Query did not properly set NotificationUri",
+                    reviewCursor.getNotificationUri(), ReviewEntry.CONTENT_URI);
+        }
+    }
+
+    public void testBasicTrailerQueries() {
+        // insert our test records into the database
+        MovieDbHelper dbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues movieValues = TestUtilities.createToyStoryValues();
+        long movieRowID = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, movieValues);
+
+        ContentValues trailerValues = TestUtilities.createTrailerValues(movieRowID);
+        long trailerRowID = db.insert(TrailerEntry.TABLE_NAME, null, trailerValues);
+        assertTrue("Unable to insert TrailerEntry into database", trailerRowID != -1);
+
+        db.close();
+
+        // Test the basic content provider query
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Make sure we get the correct cursor out of the database
+        TestUtilities.validateCursor("testBasicTrailerQueries, trailer query", trailerCursor, trailerValues);
+
+        // Has the NotificationUri been set correctly? --- we can only test this easily against API
+        // level 19 or greater because getNotificationUri was added in API level 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertEquals("Error: Location Query did not properly set NotificationUri",
+                    trailerCursor.getNotificationUri(), TrailerEntry.CONTENT_URI);
+        }
+    }
 
     /*
         This test uses the provider to insert and then update the data. Uncomment this test to
