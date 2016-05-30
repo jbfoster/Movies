@@ -12,6 +12,12 @@ import java.util.Set;
  */
 public class TestUtilities extends AndroidTestCase {
 
+    static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
+        assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
+        validateCurrentRecord(error, valueCursor, expectedValues);
+        valueCursor.close();
+    }
+
     static ContentValues createToyStoryValues() {
         ContentValues testValues = new ContentValues();
         testValues.put(MovieContract.MovieEntry.COLUMN_TITLE, "Toy Story");
