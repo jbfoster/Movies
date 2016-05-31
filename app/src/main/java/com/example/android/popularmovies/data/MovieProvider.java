@@ -37,7 +37,7 @@ public class MovieProvider extends ContentProvider {
         sReviewByMovieQueryBuilder.setTables(
                 MovieContract.ReviewEntry.TABLE_NAME + " INNER JOIN " +
                         MovieContract.MovieEntry.TABLE_NAME +
-                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
+                        " ON " + MovieContract.ReviewEntry.TABLE_NAME +
                         "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY +
                         " = " + MovieContract.MovieEntry.TABLE_NAME +
                         "." + MovieContract.MovieEntry._ID);
@@ -47,16 +47,44 @@ public class MovieProvider extends ContentProvider {
         sReviewByMovieQueryBuilder.setTables(
                 MovieContract.TrailerEntry.TABLE_NAME + " INNER JOIN " +
                         MovieContract.MovieEntry.TABLE_NAME +
-                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
+                        " ON " + MovieContract.TrailerEntry.TABLE_NAME +
                         "." + MovieContract.TrailerEntry.COLUMN_MOVIE_KEY +
                         " = " + MovieContract.MovieEntry.TABLE_NAME +
                         "." + MovieContract.MovieEntry._ID);
     }
 
-    // movie.title = ?
+    // movie.movie_selection = ?
     private static final String sMovieSelection =
             MovieContract.MovieEntry.TABLE_NAME + "." +
                     MovieContract.MovieEntry.COLUMN_TITLE + " = ? ";
+
+    private Cursor getReviewByMovie(
+            Uri uri, String[] projection, String sortOrder) {
+        String movieTitle = MovieContract.ReviewEntry.getMovieFromUri(uri);
+
+        return sReviewByMovieQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sMovieSelection,
+                new String[]{movieTitle},
+                null,
+                null,
+                sortOrder
+        );
+    }
+
+    private Cursor getTrailerByMovie(
+            Uri uri, String[] projection, String sortOrder) {
+        String movieTitle = MovieContract.TrailerEntry.getMovieFromUri(uri);
+
+        return sTrailerByMovieQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sMovieSelection,
+                new String[]{movieTitle},
+                null,
+                null,
+                sortOrder
+        );
+    }
 
     static UriMatcher buildUriMatcher() {
         // All paths added to the UriMatcher have a corresponding code to return when a match is
@@ -115,25 +143,13 @@ public class MovieProvider extends ContentProvider {
 
             // "review/*"
             case REVIEW_WITH_MOVIE: {
-                retCursor = sReviewByMovieQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder);
+                retCursor = getReviewByMovie(uri, projection, sortOrder);
                 break;
             }
 
             // "trailer/*"
             case TRAILER_WITH_MOVIE: {
-                retCursor = sTrailerByMovieQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder);
+                retCursor = getTrailerByMovie(uri, projection, sortOrder);
                 break;
             }
 

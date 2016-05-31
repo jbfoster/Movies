@@ -14,5 +14,6 @@
     <string name="review_text">Read Reviews</string>
     <string name="trailers_text">Trailers:</string>
     <string name="trailer_text">Trailer</string>
+    <string name="favorites_text">Mark as\nFavorite</string>
 
 </resources>

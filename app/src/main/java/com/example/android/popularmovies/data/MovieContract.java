@@ -77,6 +77,10 @@ public class MovieContract {
         public static Uri buildReviewMovie(String movieTitle) {
             return CONTENT_URI.buildUpon().appendPath(movieTitle).build();
         }
+
+        public static String getMovieFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
     }
 
     /* Inner class that defines the table contents of the trailer table */
@@ -103,6 +107,10 @@ public class MovieContract {
 
         public static Uri buildTrailerMovie(String movieTitle) {
             return CONTENT_URI.buildUpon().appendPath(movieTitle).build();
+        }
+
+        public static String getMovieFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
     }
 }

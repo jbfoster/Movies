@@ -62,6 +62,10 @@ public class DetailActivity extends AppCompatActivity {
         startActivity(reviewsIntent);
     }
 
+    public void addFavorite(View view) {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
