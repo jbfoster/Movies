@@ -16,8 +16,11 @@
 
 package com.example.android.popularmovies;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -34,7 +37,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -54,18 +59,6 @@ public class DetailActivity extends AppCompatActivity {
 
     String[] movieStr; // global variable to store movie data to pass to Review Activity
 
-    // getReviews method is called when Read Reviews button is clicked
-    // ReviewsActivity Intent is started to download and display reviews
-    public void getReviews(View view) {
-        Intent reviewsIntent = new Intent(this,
-                ReviewsActivity.class).putExtra("data", movieStr);
-        startActivity(reviewsIntent);
-    }
-
-    public void addFavorite(View view) {
-
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +73,66 @@ public class DetailActivity extends AppCompatActivity {
                     .commit();
         }
     }
+
+    // getReviews method is called when Read Reviews button is clicked
+    // ReviewsActivity Intent is started to download and display reviews
+    public void getReviews(View view) {
+        Intent reviewsIntent = new Intent(this,
+                ReviewsActivity.class).putExtra("data", movieStr);
+        startActivity(reviewsIntent);
+    }
+
+    // addFavorite method is called when Add to Favorites button is clicked
+    public void addFavorite(View view) {
+        ContentResolver resolver = getApplication().getContentResolver();
+        Cursor movieCursor = getApplication().getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null, null, null, null);
+        boolean existsInFavorites = false; // flag to set if title is already in favorites
+
+        if (movieCursor.moveToFirst()) { // check if any entries exist in the database
+            do {
+                String title = movieCursor.getString(movieCursor.getColumnIndex(
+                        MovieContract.MovieEntry.COLUMN_TITLE));
+
+                if (title.equals(movieStr[0])) { // check if title is already in favorites
+                    existsInFavorites = true;
+                }
+            } while (movieCursor.moveToNext()); // cycle through all titles in favorites
+
+            // add the new movie to the database if it is not already included
+            if (existsInFavorites) {
+                Toast toast = Toast.makeText(getApplication(),
+                        "This movie is already in favorites", Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                ContentValues movieValues = new ContentValues();
+                movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieStr[0]);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_IMAGE, movieStr[1]);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, movieStr[2]);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_RATING, movieStr[3]);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_YEAR, movieStr[4]);
+                Uri MovieUri = resolver.insert(MovieContract.MovieEntry.CONTENT_URI, movieValues);
+            }
+        }
+    }
+
+    public void displayDB(View view) {
+        ContentResolver resolver = getApplication().getContentResolver();
+        Cursor movieCursor = getApplication().getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null, null, null, null);
+        if (movieCursor.moveToFirst()) {
+            do {
+                String word = movieCursor.getString(movieCursor.getColumnIndex(
+                        MovieContract.MovieEntry.COLUMN_TITLE));
+                Toast toast = Toast.makeText(getApplication(), word, Toast.LENGTH_SHORT);
+                toast.show();
+            } while (movieCursor.moveToNext());
+        }
+
+    }
+
 
     // DetailFragment displays the information for a selected movie
     public static class DetailFragment extends Fragment {
