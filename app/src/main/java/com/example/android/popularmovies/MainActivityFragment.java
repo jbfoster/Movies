@@ -3,8 +3,6 @@ package com.example.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -173,22 +171,9 @@ public class MainActivityFragment extends Fragment {
     private void getMovies() {
         // FetchMoviesTask gets movie data from The Movie Database
         FetchMoviesTask moviesTask = new FetchMoviesTask();
-        if (isNetworkAvailable()) { // only download movies if network is available
+        if (Utility.isNetworkAvailable(getActivity())) { // only download movies if network is available
             moviesTask.execute();
         }
-    }
-
-    // isNetworkAvailable() checks for network connectivity
-    public boolean isNetworkAvailable() {
-        ConnectivityManager cm = (ConnectivityManager)
-                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        // if no network is available networkInfo will be null
-        // otherwise check if we are connected
-        if (networkInfo != null && networkInfo.isConnected()) {
-            return true;
-        }
-        return false;
     }
 
     // displayImages method displays poster images using picasso by setting imageadapter
