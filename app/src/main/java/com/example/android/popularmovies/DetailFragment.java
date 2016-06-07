@@ -262,7 +262,6 @@ public class DetailFragment extends Fragment {
 
                 counter++;
             }
-
         }
 
         // Once background thread is completed, add text views for each trailer
@@ -273,5 +272,4 @@ public class DetailFragment extends Fragment {
             }
         }
     }
-
 }
