@@ -101,6 +101,16 @@ public class DetailActivity extends AppCompatActivity {
                 Uri MovieUri = resolver.insert(MovieContract.MovieEntry.CONTENT_URI, movieValues);
                 movieRowId = ContentUris.parseId(MovieUri);
 
+                if (trailersInfo != null) { // add trailers to database if they exist
+                    ContentValues trailerValues = new ContentValues();
+                    for (String trailer : trailersInfo) {
+                        trailerValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_LINK, trailer);
+                        trailerValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_KEY, movieRowId);
+                        resolver.insert(MovieContract.TrailerEntry.CONTENT_URI, trailerValues);
+                    }
+                }
+
+
                 ContentValues reviewValues = new ContentValues();
                 reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, movieRowId);
                 reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "Gene Siskel");
@@ -112,14 +122,14 @@ public class DetailActivity extends AppCompatActivity {
 
     public void displayDB(View view) { // method for testing database functionality
         ContentResolver resolver = getApplication().getContentResolver();
-        Cursor movieCursor = resolver.query(MovieContract.ReviewEntry.CONTENT_URI,
+        Cursor movieCursor = resolver.query(MovieContract.TrailerEntry.CONTENT_URI,
                 null, null, null, null);
         if (movieCursor.moveToFirst()) {
             do {
                 String word = movieCursor.getString(movieCursor.getColumnIndex(
-                        MovieContract.ReviewEntry.COLUMN_REVIEW_TEXT));
+                        MovieContract.TrailerEntry.COLUMN_TRAILER_LINK));
                 String id = movieCursor.getString(movieCursor.getColumnIndex(
-                        MovieContract.ReviewEntry.COLUMN_MOVIE_KEY));
+                        MovieContract.TrailerEntry.COLUMN_MOVIE_KEY));
                 Toast toast = Toast.makeText(getApplication(), word, Toast.LENGTH_SHORT);
                 toast.show();
                 Toast toast2 = Toast.makeText(getApplication(), id, Toast.LENGTH_SHORT);
