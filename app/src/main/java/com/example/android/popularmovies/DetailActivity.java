@@ -48,22 +48,45 @@ public class DetailActivity extends AppCompatActivity {
 
     public String[] movieStr; // global variable to store movie data to pass to Review Activity
     public String[] trailersInfo; // array to store trailers data
+    public String[][] reviewsInfo; // array to store reviews data
+    public boolean haveTrailers = false; // flag to set when trailers are downloaded
+    public boolean haveReviews = false; // flag to set when reviews are downloaded
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // for testing delete all database tables
         super.onCreate(savedInstanceState);
+        getApplication().getContentResolver().delete(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                null
+        );
+        getApplication().getContentResolver().delete(
+                MovieContract.ReviewEntry.CONTENT_URI,
+                null,
+                null
+        );
+
+        getApplication().getContentResolver().delete(
+                MovieContract.TrailerEntry.CONTENT_URI,
+                null,
+                null
+        );
         Intent intent = this.getIntent();
         if (intent != null && (intent.getExtras() != null)) {
             movieStr = intent.getStringArrayExtra("data");
         }
-        getTrailers(); // get Trailers immediately so they can be displayed or stored to database
+        getTrailersAndReviews(); // get Trailers and Reviews from TheMovieDB
     }
 
     // getReviews method is called when Read Reviews button is clicked
     // ReviewsActivity Intent is started to download and display reviews
     public void getReviews(View view) {
-        Intent reviewsIntent = new Intent(this,
-                ReviewsActivity.class).putExtra("data", movieStr);
+        Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
+        reviewsIntent.putExtra("title", movieStr[0]); // send movie title
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("reviewData", reviewsInfo);
+        reviewsIntent.putExtras(bundle); // send review data
         startActivity(reviewsIntent);
     }
 
@@ -110,7 +133,6 @@ public class DetailActivity extends AppCompatActivity {
                     }
                 }
 
-
                 ContentValues reviewValues = new ContentValues();
                 reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, movieRowId);
                 reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "Gene Siskel");
@@ -139,13 +161,29 @@ public class DetailActivity extends AppCompatActivity {
         movieCursor.close();
     }
 
-    // getTrailers method gets trailers by executing FetchTrailersTask
-    private void getTrailers() {
+    // getTrailersAndReviews method gets trailers and reviews by executing
+    // FetchTrailersTask and FetchReviewsTask
+    private void getTrailersAndReviews() {
         // FetchTrailersTask gets trailers from The Movie Database
         FetchTrailersTask trailersTask = new FetchTrailersTask();
+        FetchReviewsTask reviewsTask = new FetchReviewsTask();
         if (Utility.isNetworkAvailable(this)) { // only download reviews if network is available
             trailersTask.execute();
+            reviewsTask.execute();
         }
+    }
+
+    // startDetailFragment starts the new fragment and passes movie, trailers and reviews data
+    private void startDetailFragment() {
+        setContentView(R.layout.activity_detail);
+        Bundle arguments = new Bundle();
+        arguments.putStringArray("movieData", movieStr); // send movie data to Fragment
+        arguments.putStringArray("trailersData", trailersInfo); // send trailers to Fragment
+        arguments.putSerializable("reviewsData", reviewsInfo); // send reviews to Fragment
+        DetailFragment fragment = new DetailFragment();
+        fragment.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.container, fragment).commit();
     }
 
     // FetchTrailersTask class contains methods for getting trailers from The Movie Database
@@ -184,7 +222,6 @@ public class DetailActivity extends AppCompatActivity {
             return resultStrs;
         }
 
-
         // doInBackground executes the API call in a background thread
         @Override
         protected String[] doInBackground(String... params) {
@@ -197,6 +234,7 @@ public class DetailActivity extends AppCompatActivity {
 
             // Will contain the raw JSON response as a string.
             String trailersJsonStr = null;
+            String reviewsJsonStr = null;
 
             try {
 
@@ -271,19 +309,151 @@ public class DetailActivity extends AppCompatActivity {
             return null;
         }
 
-        // Once background thread is completed, start DetailFragment
+        // Start DetailFragment is all background tasks are complete
         @Override
         protected void onPostExecute(String[] result) {
-            if (result != null) {
-                setContentView(R.layout.activity_detail);
-                Bundle arguments = new Bundle();
-                arguments.putStringArray("movieData", movieStr); // send movie data to Fragment
-                arguments.putStringArray("trailersData", trailersInfo); // send trailers to Fragment
-                DetailFragment fragment = new DetailFragment();
-                fragment.setArguments(arguments);
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, fragment).commit();
+            haveTrailers = true; // set flag
+            if ((result != null) && (haveTrailers == true) && (haveReviews == true)) {
+                // start DetailFragment if FetchTrailersTask and FetchReviewsTask are complete
+                startDetailFragment();
             }
         }
+    }
+
+    // FetchReviewsTask class contains methods for getting reviews from The Movie Database
+    public class FetchReviewsTask extends AsyncTask<String, Void, String[]> {
+        private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
+
+        /**
+         * Take the String representing reviews in JSON Format and
+         * parse data.
+         */
+        private String[] getReviewsFromJson(String reviewsJsonStr)
+                throws JSONException {
+
+            // These are the names of the JSON objects that need to be extracted.
+            final String MDB_RESULTS = "results";
+            final String MDB_AUTHOR = "author";
+            final String MDB_REVIEW = "content";
+
+            JSONObject reviewsJson = new JSONObject(reviewsJsonStr);
+            JSONArray reviewsArray = reviewsJson.getJSONArray(MDB_RESULTS);
+
+            // Create array to hold reviews
+            reviewsInfo = new String[reviewsArray.length()][2];
+
+            String[] resultStrs = new String[reviewsArray.length()];
+            for (int i = 0; i < reviewsArray.length(); i++) {
+
+                // Get the JSON object representing the ith review
+                JSONObject movieData = reviewsArray.getJSONObject(i);
+
+                // Store the data for each review in reviewsInfo array
+                reviewsInfo[i][0] = movieData.getString(MDB_AUTHOR);
+                reviewsInfo[i][1] = movieData.getString(MDB_REVIEW);
+
+                resultStrs[i] = reviewsInfo[i][1];
+            }
+
+            return resultStrs;
+        }
+
+
+        // doInBackground executes the API call in a background thread
+        @Override
+        protected String[] doInBackground(String... params) {
+            String movieId = movieStr[5];
+
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            // Will contain the raw JSON response as a string.
+            String reviewsJsonStr = null;
+
+            try {
+
+                // Construct the URL for the The Movie Database query
+                // Information and possible parameters are available at themoviedb.org
+                final String FORECAST_BASE_URL = "http://api.themoviedb.org/3/movie/";
+                final String API_KEY = "api_key";
+                // api key for The Movie Database is stored in api-keys.xml resource file
+                final String KEY = getString(R.string.movie_api_key);
+
+                String urlString = FORECAST_BASE_URL + movieId + "/" + "reviews";
+
+                Uri builtUri = Uri.parse(urlString).buildUpon()
+                        .appendQueryParameter(API_KEY, KEY)
+                        .build();
+
+                URL url = new URL(builtUri.toString());
+
+                // Create the request to The Movie Database, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                reviewsJsonStr = buffer.toString();
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the movie data, there's no point in
+                // attempting to parse it.
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+
+            try {
+                return getReviewsFromJson(reviewsJsonStr);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        // Start DetailFragment is all background tasks are complete
+        @Override
+        protected void onPostExecute(String[] result) {
+            haveReviews = true; // set flag
+            if ((result != null) && (haveTrailers == true) && (haveReviews == true)) {
+                // start DetailFragment if FetchTrailersTask and FetchReviewsTask are complete
+                startDetailFragment();
+            }
+        }
+
     }
 }

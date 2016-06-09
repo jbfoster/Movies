@@ -1,9 +1,6 @@
 package com.example.android.popularmovies;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,7 +31,6 @@ import java.net.URL;
  */
 public class ReviewsActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,44 +52,60 @@ public class ReviewsActivity extends AppCompatActivity {
         @Override
         public void onStart() {
             super.onStart();
-            getReviews();
+            //getReviews();
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
-            // pull movie data sent with intent
+            // pull reviews data sent with intent
             Intent intent = getActivity().getIntent();
             rootView = inflater.inflate(R.layout.fragment_reviews, container, false);
             if (intent != null && (intent.getExtras() != null)) {
-                String[] movieStr = intent.getStringArrayExtra("data");
+                String title = intent.getStringExtra("title");
 
-                ((TextView) rootView.findViewById(R.id.title_text)).setText(movieStr[0]);
+                // get 2d array from intent and store in reviewsInfo array
+                Object[] objectArray = (Object[]) intent.getExtras().getSerializable("reviewData");
+                if (objectArray != null) {
+                    reviewsInfo = new String[objectArray.length][];
+                    for (int i = 0; i < objectArray.length; i++) {
+                        reviewsInfo[i] = (String[]) objectArray[i];
+                    }
+                }
+
+                ((TextView) rootView.findViewById(R.id.title_text)).setText(title);
             }
+            displayReviews();
             return rootView;
+        }
+
+        public void displayReviews() {
+            LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.review_layout);
+
+            // cycle through each review and add text views for author and review
+            for (String[] review : reviewsInfo) {
+                String author = "Review by " + review[0] + ":";
+                TextView authorText = new TextView(getActivity());
+                authorText.setText(author);
+                authorText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+                authorText.setPadding(0, 0, 0, 10);
+                TextView reviewText = new TextView(getActivity());
+                reviewText.setText(review[1]);
+                reviewText.setPadding(0, 0, 0, 20);
+                linearLayout.addView(authorText);
+                linearLayout.addView(reviewText);
+
+            }
         }
 
         // getReviews method gets reviews by executing FetchReviewsTask
         private void getReviews() {
             // FetchReviewsTask gets reviews from The Movie Database
             FetchReviewsTask reviewsTask = new FetchReviewsTask();
-            if (isNetworkAvailable()) { // only download reviews if network is available
+            if (Utility.isNetworkAvailable(getActivity())) { // only download reviews if network is available
                 reviewsTask.execute();
             }
-        }
-
-        // isNetworkAvailable() checks for network connectivity
-        public boolean isNetworkAvailable() {
-            ConnectivityManager cm = (ConnectivityManager)
-                    getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-            // if no network is available networkInfo will be null
-            // otherwise check if we are connected
-            if (networkInfo != null && networkInfo.isConnected()) {
-                return true;
-            }
-            return false;
         }
 
         // FetchReviewsTask class contains methods for getting reviews from The Movie Database
@@ -142,7 +154,7 @@ public class ReviewsActivity extends AppCompatActivity {
 
                 Intent intent = getActivity().getIntent();
                 if (intent != null && (intent.getExtras() != null)) {
-                    String[] movieStr = intent.getStringArrayExtra("data");
+                    String[] movieStr = intent.getStringArrayExtra("movieData");
                     movieId = movieStr[5];
                 }
 
