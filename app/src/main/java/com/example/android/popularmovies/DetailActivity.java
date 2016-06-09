@@ -46,7 +46,7 @@ import java.net.URL;
 // the specific movie that was selected
 public class DetailActivity extends AppCompatActivity {
 
-    String[] movieStr; // global variable to store movie data to pass to Review Activity
+    public String[] movieStr; // global variable to store movie data to pass to Review Activity
     public String[] trailersInfo; // array to store trailers data
 
     @Override
@@ -56,7 +56,7 @@ public class DetailActivity extends AppCompatActivity {
         if (intent != null && (intent.getExtras() != null)) {
             movieStr = intent.getStringArrayExtra("data");
         }
-        getTrailers();
+        getTrailers(); // get Trailers immediately so they can be displayed or stored to database
     }
 
     // getReviews method is called when Read Reviews button is clicked
@@ -271,14 +271,18 @@ public class DetailActivity extends AppCompatActivity {
             return null;
         }
 
-        // Once background thread is completed, add text views for each trailer
+        // Once background thread is completed, start DetailFragment
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null) {
                 setContentView(R.layout.activity_detail);
+                Bundle arguments = new Bundle();
+                arguments.putStringArray("movieData", movieStr); // send movie data to Fragment
+                arguments.putStringArray("trailersData", trailersInfo); // send trailers to Fragment
+                DetailFragment fragment = new DetailFragment();
+                fragment.setArguments(arguments);
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new DetailFragment())
-                        .commit();
+                        .add(R.id.container, fragment).commit();
             }
         }
     }
