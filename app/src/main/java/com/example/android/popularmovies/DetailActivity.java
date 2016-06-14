@@ -54,24 +54,7 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // for testing delete all database tables
         super.onCreate(savedInstanceState);
-        getApplication().getContentResolver().delete(
-                MovieContract.MovieEntry.CONTENT_URI,
-                null,
-                null
-        );
-        getApplication().getContentResolver().delete(
-                MovieContract.ReviewEntry.CONTENT_URI,
-                null,
-                null
-        );
-
-        getApplication().getContentResolver().delete(
-                MovieContract.TrailerEntry.CONTENT_URI,
-                null,
-                null
-        );
         Intent intent = this.getIntent();
         if (intent != null && (intent.getExtras() != null)) {
             movieStr = intent.getStringArrayExtra("data");
@@ -79,9 +62,9 @@ public class DetailActivity extends AppCompatActivity {
         getTrailersAndReviews(); // get Trailers and Reviews from TheMovieDB
     }
 
-    // getReviews method is called when Read Reviews button is clicked
+    // showReviews method is called when Read Reviews button is clicked
     // ReviewsActivity Intent is started to download and display reviews
-    public void getReviews(View view) {
+    public void showReviews(View view) {
         Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
         reviewsIntent.putExtra("title", movieStr[0]); // send movie title
         Bundle bundle = new Bundle();
@@ -138,24 +121,28 @@ public class DetailActivity extends AppCompatActivity {
                 reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "Gene Siskel");
                 reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_TEXT, "Bad movie");
                 resolver.insert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
+
+                Toast toast = Toast.makeText(getApplication(),
+                        "Added to favorites", Toast.LENGTH_SHORT);
+                toast.show();
             }
         movieCursor.close();
     }
 
     public void displayDB(View view) { // method for testing database functionality
         ContentResolver resolver = getApplication().getContentResolver();
-        Cursor movieCursor = resolver.query(MovieContract.TrailerEntry.CONTENT_URI,
+        Cursor movieCursor = resolver.query(MovieContract.MovieEntry.CONTENT_URI,
                 null, null, null, null);
         if (movieCursor.moveToFirst()) {
             do {
                 String word = movieCursor.getString(movieCursor.getColumnIndex(
-                        MovieContract.TrailerEntry.COLUMN_TRAILER_LINK));
-                String id = movieCursor.getString(movieCursor.getColumnIndex(
-                        MovieContract.TrailerEntry.COLUMN_MOVIE_KEY));
+                        MovieContract.MovieEntry.COLUMN_TITLE));
+//                String id = movieCursor.getString(movieCursor.getColumnIndex(
+//                        MovieContract.MovieEntry.COLUMN_RELEASE_YEAR));
                 Toast toast = Toast.makeText(getApplication(), word, Toast.LENGTH_SHORT);
                 toast.show();
-                Toast toast2 = Toast.makeText(getApplication(), id, Toast.LENGTH_SHORT);
-                toast2.show();
+//                Toast toast2 = Toast.makeText(getApplication(), id, Toast.LENGTH_SHORT);
+//                toast2.show();
             } while (movieCursor.moveToNext());
         }
         movieCursor.close();

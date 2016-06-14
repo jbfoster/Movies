@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:text="@string/review_text"
             android:layout_margin="16dp"
-            android:onClick="getReviews" />
+            android:onClick="showReviews" />
 
         <View
             android:layout_width="match_parent"

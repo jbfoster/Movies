@@ -1,8 +1,10 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +18,9 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.example.android.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -123,6 +127,22 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    // method countMovieFavorites returns the number of movies stored as favorites in local DB
+    private int countMovieFavorites() {
+        ContentResolver resolver = getActivity().getContentResolver();
+        Cursor cursor = resolver.query(MovieContract.MovieEntry.CONTENT_URI,
+                new String[]{"count(*)"}, null, null, null);
+        if (cursor.getCount() == 0) {
+            cursor.close();
+            return 0;
+        } else {
+            cursor.moveToFirst();
+            int result = cursor.getInt(0);
+            cursor.close();
+            return result;
+        }
+    }
+
 
     // ImageAdapter class is custom adapater for gridview
     public class ImageAdapter extends BaseAdapter {
@@ -133,7 +153,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         public int getCount() {
-            return 20; // 20 movies are returned from API call
+            return movieInfo.length; //  number of movies in array
         }
 
         public Object getItem(int position) {
@@ -168,10 +188,45 @@ public class MainActivityFragment extends Fragment {
 
     // getMovies method gets movie data by executing FetchMoviesTask
     private void getMovies() {
-        // FetchMoviesTask gets movie data from The Movie Database
-        FetchMoviesTask moviesTask = new FetchMoviesTask();
-        if (Utility.isNetworkAvailable(getActivity())) { // only download movies if network is available
-            moviesTask.execute();
+        // check if favorites is set in shared preferences. If so, get movies from local databse,
+        // otherwise get movies online using FetchMoviesTask
+        SharedPreferences sharedPrefs =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String orderType = sharedPrefs.getString(getString(R.string.pref_order_key), "");
+        if (orderType.equals("favorite")) { // get movies from local database
+            ContentResolver resolver = getActivity().getContentResolver();
+            Cursor movieCursor = resolver.query(MovieContract.MovieEntry.CONTENT_URI,
+                    null, null, null, null);
+            if (movieCursor.moveToFirst()) {
+                // set movieInfo length to number of movies in local database
+                movieInfo = new String[countMovieFavorites()][6];
+                int counter = 0; // used to iterate through movieInfo array
+                do {
+                    movieInfo[counter][0] = movieCursor.getString(movieCursor.getColumnIndex(
+                            MovieContract.MovieEntry.COLUMN_TITLE));
+                    movieInfo[counter][1] = movieCursor.getString(movieCursor.getColumnIndex(
+                            MovieContract.MovieEntry.COLUMN_POSTER_IMAGE));
+                    movieInfo[counter][2] = movieCursor.getString(movieCursor.getColumnIndex(
+                            MovieContract.MovieEntry.COLUMN_SYNOPSIS));
+                    movieInfo[counter][3] = movieCursor.getString(movieCursor.getColumnIndex(
+                            MovieContract.MovieEntry.COLUMN_RATING));
+                    movieInfo[counter][4] = movieCursor.getString(movieCursor.getColumnIndex(
+                            MovieContract.MovieEntry.COLUMN_RELEASE_YEAR));
+                    movieInfo[counter][5] = null; // movieDB ID not needed when using local DB
+                    counter++;
+                } while (movieCursor.moveToNext());
+                displayImages();
+            } else { // local database empty
+                Toast toast = Toast.makeText(getActivity(), "No movies stored in favorites",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+            }
+            movieCursor.close();
+        } else { // get movies from online server
+            FetchMoviesTask moviesTask = new FetchMoviesTask();
+            if (Utility.isNetworkAvailable(getActivity())) { // only download movies if network is available
+                moviesTask.execute();
+            }
         }
     }
 
@@ -331,7 +386,6 @@ public class MainActivityFragment extends Fragment {
             }
         }
     }
-
 }
 
 

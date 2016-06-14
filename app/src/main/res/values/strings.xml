@@ -6,9 +6,11 @@
     <string name="pref_order_label">Order by</string>
     <string name="pref_order_label_popular">Most Popular</string>
     <string name="pref_order_label_rating">Highest Rated</string>
+    <string name="pref_order_label_favorites">Favorites</string>
     <string name="pref_order_key" translatable="false">order</string>
     <string name="pref_order_popular" translatable="false">popular</string>
     <string name="pref_order_rating" translatable="false">top_rated</string>
+    <string name="pref_order_favorites" translatable="false">favorite</string>
     <string name="title_activity_detail">DetailActivity</string>
 
     <string name="review_text">Read Reviews</string>
