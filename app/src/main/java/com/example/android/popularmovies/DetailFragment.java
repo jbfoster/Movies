@@ -32,7 +32,6 @@ public class DetailFragment extends Fragment {
         movieStr = bundle.getStringArray("movieData");
         trailersInfo = bundle.getStringArray("trailersData");
 
-
         // Pull data sent with intent and assign the appropriate data values
             ((TextView) rootView.findViewById(R.id.title_text)).setText(movieStr[0]);
             ImageView imageView = (ImageView) rootView.findViewById(R.id.poster_image);

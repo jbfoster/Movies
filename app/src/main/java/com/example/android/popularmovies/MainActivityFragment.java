@@ -64,9 +64,9 @@ public class MainActivityFragment extends Fragment {
             ArrayList<MyObject> list;
             list = savedInstanceState.getParcelableArrayList("key");
 
-            movieInfo = new String[20][6];
+            movieInfo = new String[list.size()][6];
 
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < list.size(); i++) {
                 movieInfo[i][0] = list.get(i).getTitle();
                 movieInfo[i][1] = list.get(i).getPoster();
                 movieInfo[i][2] = list.get(i).getSynopsis();
@@ -118,7 +118,7 @@ public class MainActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         if (movieInfo != null) {
             ArrayList<MyObject> list = new ArrayList<MyObject>();
-            for (int i = 0; i < 20; i++) { // cycle through list of 20 movies on screen
+            for (int i = 0; i < movieInfo.length; i++) { // cycle through movies on screen
                 list.add(new MyObject(movieInfo[i][0], movieInfo[i][1],
                         movieInfo[i][2], movieInfo[i][3], movieInfo[i][4], movieInfo[i][5]));
             }

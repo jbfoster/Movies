@@ -116,11 +116,15 @@ public class DetailActivity extends AppCompatActivity {
                     }
                 }
 
-                ContentValues reviewValues = new ContentValues();
-                reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, movieRowId);
-                reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "Gene Siskel");
-                reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_TEXT, "Bad movie");
-                resolver.insert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
+                if (reviewsInfo != null) { // add reviews to database if they exist
+                    ContentValues reviewValues = new ContentValues();
+                    for (String[] review : reviewsInfo) {
+                        reviewValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review[0]);
+                        reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_TEXT, review[1]);
+                        reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, movieRowId);
+                        resolver.insert(MovieContract.ReviewEntry.CONTENT_URI, reviewValues);
+                    }
+                }
 
                 Toast toast = Toast.makeText(getApplication(),
                         "Added to favorites", Toast.LENGTH_SHORT);
@@ -129,14 +133,69 @@ public class DetailActivity extends AppCompatActivity {
         movieCursor.close();
     }
 
+    // method movieInDB checks whether a movie title is in the local database
+    public boolean movieInDB(String title) {
+        ContentResolver resolver = getApplication().getContentResolver();
+        String[] mProjection = {MovieContract.MovieEntry.COLUMN_TITLE};
+        String mSelection = MovieContract.MovieEntry.COLUMN_TITLE + " = ?";
+        String mSelectionArgs[] = {title};
+        Cursor movieCursor = resolver.query(MovieContract.MovieEntry.CONTENT_URI,
+                mProjection, mSelection, mSelectionArgs, null);
+        boolean result = movieCursor.moveToFirst();
+        movieCursor.close();
+        return result;
+    }
+
+    // method loadTrailersAndReviews loads trailers and reviews for title from local database
+    public void loadTrailersAndReviews(String title) {
+        ContentResolver resolver = getApplication().getContentResolver();
+
+        // load trailers from local DB
+        String[] trailerProjection = {MovieContract.TrailerEntry.COLUMN_TRAILER_LINK};
+        String trailerSelection = MovieContract.MovieEntry.COLUMN_TITLE + " = ?";
+        String trailerSelectionArgs[] = {title};
+        Cursor trailerCursor = resolver.query(MovieContract.TrailerEntry.buildTrailerMovie(title),
+                trailerProjection, trailerSelection, trailerSelectionArgs, null);
+        trailersInfo = new String[trailerCursor.getCount()];
+        if (trailerCursor.moveToFirst()) {
+            int counter = 0; // counter to keep track of index of trailers
+            do {
+                trailersInfo[counter] = trailerCursor.getString(trailerCursor.getColumnIndex(
+                        MovieContract.TrailerEntry.COLUMN_TRAILER_LINK));
+                counter++;
+            } while (trailerCursor.moveToNext());
+        }
+        trailerCursor.close();
+
+        // load reviews from local DB
+        String[] reviewProjection = {MovieContract.ReviewEntry.COLUMN_AUTHOR,
+                MovieContract.ReviewEntry.COLUMN_REVIEW_TEXT};
+        String reviewSelection = MovieContract.MovieEntry.COLUMN_TITLE + " = ?";
+        String reviewSelectionArgs[] = {title};
+        Cursor reviewCursor = resolver.query(MovieContract.ReviewEntry.buildReviewMovie(title),
+                reviewProjection, reviewSelection, reviewSelectionArgs, null);
+        reviewsInfo = new String[reviewCursor.getCount()][2];
+        if (reviewCursor.moveToFirst()) {
+            int counter = 0; // counter to keep track of index of trailers
+            do {
+                reviewsInfo[counter][0] = reviewCursor.getString(reviewCursor.getColumnIndex(
+                        MovieContract.ReviewEntry.COLUMN_AUTHOR));
+                reviewsInfo[counter][1] = reviewCursor.getString(reviewCursor.getColumnIndex(
+                        MovieContract.ReviewEntry.COLUMN_REVIEW_TEXT));
+                counter++;
+            } while (reviewCursor.moveToNext());
+        }
+        reviewCursor.close();
+    }
+
     public void displayDB(View view) { // method for testing database functionality
         ContentResolver resolver = getApplication().getContentResolver();
-        Cursor movieCursor = resolver.query(MovieContract.MovieEntry.CONTENT_URI,
+        Cursor movieCursor = resolver.query(MovieContract.ReviewEntry.CONTENT_URI,
                 null, null, null, null);
         if (movieCursor.moveToFirst()) {
             do {
                 String word = movieCursor.getString(movieCursor.getColumnIndex(
-                        MovieContract.MovieEntry.COLUMN_TITLE));
+                        MovieContract.ReviewEntry.COLUMN_AUTHOR));
 //                String id = movieCursor.getString(movieCursor.getColumnIndex(
 //                        MovieContract.MovieEntry.COLUMN_RELEASE_YEAR));
                 Toast toast = Toast.makeText(getApplication(), word, Toast.LENGTH_SHORT);
@@ -148,15 +207,19 @@ public class DetailActivity extends AppCompatActivity {
         movieCursor.close();
     }
 
-    // getTrailersAndReviews method gets trailers and reviews by executing
+    // getTrailersAndReviews method gets trailers and reviews from MovieDB by executing
     // FetchTrailersTask and FetchReviewsTask
     private void getTrailersAndReviews() {
-        // FetchTrailersTask gets trailers from The Movie Database
-        FetchTrailersTask trailersTask = new FetchTrailersTask();
-        FetchReviewsTask reviewsTask = new FetchReviewsTask();
-        if (Utility.isNetworkAvailable(this)) { // only download reviews if network is available
-            trailersTask.execute();
-            reviewsTask.execute();
+        if (movieInDB(movieStr[0])) { // pull trailers and reviews from local database
+            loadTrailersAndReviews(movieStr[0]);
+            startDetailFragment();
+        } else { // get trailers and reviews from The Movie Database
+            FetchTrailersTask trailersTask = new FetchTrailersTask();
+            FetchReviewsTask reviewsTask = new FetchReviewsTask();
+            if (Utility.isNetworkAvailable(this)) { // only download reviews if network is available
+                trailersTask.execute();
+                reviewsTask.execute();
+            }
         }
     }
 

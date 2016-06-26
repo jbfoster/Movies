@@ -44,7 +44,7 @@ public class MovieProvider extends ContentProvider {
 
         //This is an inner join which looks like
         //trailer INNER JOIN movie ON trailer.movie_id = movie._id
-        sReviewByMovieQueryBuilder.setTables(
+        sTrailerByMovieQueryBuilder.setTables(
                 MovieContract.TrailerEntry.TABLE_NAME + " INNER JOIN " +
                         MovieContract.MovieEntry.TABLE_NAME +
                         " ON " + MovieContract.TrailerEntry.TABLE_NAME +
