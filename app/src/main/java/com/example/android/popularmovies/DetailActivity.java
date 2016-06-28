@@ -188,25 +188,6 @@ public class DetailActivity extends AppCompatActivity {
         reviewCursor.close();
     }
 
-    public void displayDB(View view) { // method for testing database functionality
-        ContentResolver resolver = getApplication().getContentResolver();
-        Cursor movieCursor = resolver.query(MovieContract.ReviewEntry.CONTENT_URI,
-                null, null, null, null);
-        if (movieCursor.moveToFirst()) {
-            do {
-                String word = movieCursor.getString(movieCursor.getColumnIndex(
-                        MovieContract.ReviewEntry.COLUMN_AUTHOR));
-//                String id = movieCursor.getString(movieCursor.getColumnIndex(
-//                        MovieContract.MovieEntry.COLUMN_RELEASE_YEAR));
-                Toast toast = Toast.makeText(getApplication(), word, Toast.LENGTH_SHORT);
-                toast.show();
-//                Toast toast2 = Toast.makeText(getApplication(), id, Toast.LENGTH_SHORT);
-//                toast2.show();
-            } while (movieCursor.moveToNext());
-        }
-        movieCursor.close();
-    }
-
     // getTrailersAndReviews method gets trailers and reviews from MovieDB by executing
     // FetchTrailersTask and FetchReviewsTask
     private void getTrailersAndReviews() {

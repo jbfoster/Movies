@@ -6,30 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.android.popularmovies.data.MovieContract;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // for testing, delete all databases
-        getApplication().getContentResolver().delete(
-                MovieContract.MovieEntry.CONTENT_URI,
-                null,
-                null
-        );
-        getApplication().getContentResolver().delete(
-                MovieContract.ReviewEntry.CONTENT_URI,
-                null,
-                null
-        );
-
-        getApplication().getContentResolver().delete(
-                MovieContract.TrailerEntry.CONTENT_URI,
-                null,
-                null
-        );
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
