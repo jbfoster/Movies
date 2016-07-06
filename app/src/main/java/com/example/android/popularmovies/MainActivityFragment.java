@@ -2,7 +2,6 @@ package com.example.android.popularmovies;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -50,6 +49,12 @@ public class MainActivityFragment extends Fragment {
     // if this flag is true, onCreateView can display images immediately
     // if this flag is false, images are displayed after background fetchmovies task completes
     public boolean savedData = false;
+
+    // Callback interface that all activities containing this fragment must implement
+    // This interface allows activities to be notified when a movie is selected
+    public interface Callback {
+        public void onMovieSelected(String[] movieStr);
+    }
 
     public MainActivityFragment() {
     }
@@ -99,13 +104,10 @@ public class MainActivityFragment extends Fragment {
         // Create a gridview for grid of movie posters
         gridView = (GridView) rootView.findViewById(R.id.gridview);
 
-        // When a movie poster is clicked, start DetailActivity intent
-        // passing in the array of movie data for the selected movie
+        // When a movie poster is clicked, send callback to Activity
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent detailIntent = new Intent(getActivity(),
-                        DetailActivity.class).putExtra("data", movieInfo[position]);
-                startActivity(detailIntent);
+                ((Callback) getActivity()).onMovieSelected(movieInfo[position]);
             }
         });
 

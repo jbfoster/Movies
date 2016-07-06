@@ -58,6 +58,7 @@
                     android:textSize="16dp" />
 
                 <Button
+                    android:id="@+id/favoritesButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/favorites_text"
@@ -83,6 +84,7 @@
             android:background="@color/lineSeparator" />
 
         <Button
+            android:id="@+id/reviewsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/review_text"
